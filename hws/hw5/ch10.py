@@ -26,7 +26,7 @@ def is_sorted(some_list):
         return True
 
 def main():
-    my_list = [1, 5, 12, 13]
+    my_list = [1, 5, 12, 3]
     print is_sorted(my_list)
 
 if __name__ == "__main__":

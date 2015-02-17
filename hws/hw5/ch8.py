@@ -15,12 +15,6 @@ def reverse_letters(word):
         print letter
         index -= 1
 
-# reverse_letters('word')
-
-# Exercise 8.12
-# Rotate the letters of a word by some value
-#
-
 def rotate_word(word, shift):
     shift = shift % 26     # Use modulo to always have forward movement
     new_word = ''          # Blank strings can add letters to them
@@ -35,8 +29,6 @@ def rotate_word(word, shift):
 
     print new_word
 
-# rotate_word('melon', -10)
-# rotate_word('cheer', 7)
 
 def main():
     reverse_letters('word')
