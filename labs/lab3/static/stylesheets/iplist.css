@@ -1,0 +1,22 @@
+h1 {
+    color: #191975;
+    margin-left: 20px;
+    text-shadow:
+    -1px -1px 0 #6C6CA7,
+    1px -1px 0 #6C6CA7,
+    -1px 1px 0 #6C6CA7,
+    1px 1px 0 #6C6CA7;
+}
+
+p {
+    margin-left: 40px;
+}
+
+li {
+    margin-left: 50px;
+}
+
+body {
+    margin-left: 5px;
+    background-color: #666666;
+}

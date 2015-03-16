@@ -1,0 +1,14 @@
+Created: 3/6/15
+
+TO USE:
+    1. Run sysinfo.py and go to localhost:5000/ in a browser
+    2. Add an IP address to the list with the text box
+    3. Select an IP address from the drop down to see its monitor page
+
+Execution Pictures: There are pictures in the home directory that you can view, it should look similar when run.
+
+CSS Stylesheets:
+/static/stylesheets/ 
+
+HTML Templates:
+/templates/

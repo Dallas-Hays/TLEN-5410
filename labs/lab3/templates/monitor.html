@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+    <head>
+        <title>Monitor Page</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/monitor.css') }}">
+        <meta http-equiv='refresh' content='{{ ref_val }}'/>
+    </head>
+    <h2>
+        Monitor Page
+    </h2>
+    <ul>
+        List of IPs currently being monitored:
+        {% for ip in ips %}
+        <li>{{ ip }}</li>
+        {% endfor %}
+    </ul>
+    <p>
+        <a href='/'>Add more IP addresses</a>
+    </p>
+    <body>
+        <form action="monitor" method="get">
+            <fieldset>
+                <legend>Monitored List</legend>
+                <select name='ipaddr-list'>
+                {% for ip in ips %}
+                    <option value={{ ips.index(ip) }}>{{ ip }}</option>
+                {% endfor %}
+                </select>
+                <input type="submit" value="Monitor" />
+            </fieldset>
+        </form>
+
+        <form action="update" method="post">
+            <fieldset>
+                <legend>Change basic router information or page refresh ({{ ref_val }} sec)</legend>
+                <select name='modification'>
+                    <option value='hostname'>Hostname</option>
+                    <option value='contact'>Contact</option>
+                    <option value='location'>Location</option>
+                    <option value='refresh_value'>Page Refresh ({{ ref_val }} sec)</option>
+                </select>
+                <input type="hidden" name="address" value="{{ ip }}" />
+                <input id='mod' name='mod' type='text' />
+                <input type="submit" value="Modify" />
+            </fieldset>
+        </form>
+
+        <h1>Basic Router Information: </h1>
+
+        <table>
+            <tr>
+                <th>Hostname</th>
+                <th>Contact</th>
+                <th>Location</th>
+                <th>Uptime</th>
+            </tr>
+            <tr>
+                <td>{{ hostname }}</td>
+                <td>{{ contact }}</td>
+                <td>{{ location }}</td>
+                <td>{{ uptime }}</td>
+            </tr>
+        </table>
+
+        <h1>Routing Table</h1>
+        <table>
+            <tr>
+                <th>Dest. Address</th>
+                <th>Dest. Mask</th>
+                <th>Next Hop</th>
+                <th>Metric</th>
+            </tr>
+            {% for i in range(0, route_table_len)%}
+            <tr>
+                <td>{{ route_table_dest[i] }}</td>
+                <td>{{ route_table_mask[i] }}</td>
+                <td>{{ route_table_nexthop[i] }}</td>
+                <td>{{ route_table_metric[i] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h1>List of Neighbors</h1>
+        <table>
+            <tr>
+                <th>Neighbor Hostname</th>
+                <th>Neighbor Interface</th>
+            </tr>
+            {% for i in range(0, cdp_neighbors_len) %}
+            <tr>
+                <td>{{ cdp_neighbors_hostnames[i] }}</td>
+                <td>{{ cdp_neighbors_interfaces[i] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

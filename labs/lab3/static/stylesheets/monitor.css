@@ -1,0 +1,126 @@
+/* 1. http://stackoverflow.com/questions/11323813/how-to-outline-text-in-html-css
+ * For text shadows
+ * 2. http://www.w3schools.com/tags/ref_colorpicker.asp
+ * For finding the hex value of most colors */
+
+h2 {
+    color: #191975;
+    font-size: 40px;
+    text-decoration: underline;
+    text-shadow:
+    -1px -1px 0 #6C6CA7,
+    1px -1px 0 #6C6CA7,
+    -1px 1px 0 #6C6CA7,
+    1px 1px 0 #6C6CA7;
+}
+
+h1 {
+    color: #191975;
+    margin-left: 20px;
+    text-shadow:
+    -1px -1px 0 #6C6CA7,
+    1px -1px 0 #6C6CA7,
+    -1px 1px 0 #6C6CA7,
+    1px 1px 0 #6C6CA7;
+}
+
+body {
+    margin-left: 5px;
+    background-color: #666666;
+}
+
+ul {
+    margin-left: 40px;
+    list-style-type: square;
+}
+
+li {
+    margin-left: 80px;
+}
+
+/* unvisited link */
+a:link {
+    color: purple;
+    text-shadow:
+    -1px -1px 0 #6C6CA7,
+    1px -1px 0 #6C6CA7,
+    -1px 1px 0 #6C6CA7,
+    1px 1px 0 #6C6CA7;
+}
+
+/* visited link */
+a:visited {
+    color: purple;
+    text-shadow:
+    -1px -1px 0 #6C6CA7,
+    1px -1px 0 #6C6CA7,
+    -1px 1px 0 #6C6CA7,
+    1px 1px 0 #6C6CA7;
+}
+
+/* mouse over link */
+a:hover {
+    color: blue;
+    text-shadow:
+    -1px -1px 0 #6C6CA7,
+    1px -1px 0 #6C6CA7,
+    -1px 1px 0 #6C6CA7,
+    1px 1px 0 #6C6CA7;
+}
+
+/* selected link */
+a:active {
+    color: blue;
+    text-shadow:
+    -1px -1px 0 #6C6CA7,
+    1px -1px 0 #6C6CA7,
+    -1px 1px 0 #6C6CA7,
+    1px 1px 0 #6C6CA7;
+}
+
+p {
+    font-size: 20px;
+    text-indent: 45px;
+}
+
+table {
+    width: 60%;
+    max-width: 100%;
+    margin-left: 45px;
+    border: 1px solid black;
+    border-collapse: collapse;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+tr {
+    display: table-row;
+    padding: 5px;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+td {
+    width: 60%;
+    max-width: 100%;
+    margin-left: 45px;
+    padding: 5px;
+    background-color: #C55E5E;
+    border: 1px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+th {
+    width: 60%;
+    max-width: 100%;
+    margin-left: 45px;
+    padding: 5px;
+    background-color: #AC1919;
+    border: 1px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}

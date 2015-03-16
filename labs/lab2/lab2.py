@@ -1,4 +1,4 @@
-""" Dallas Hays and Sreenath Reddy
+""" Dallas Hays
     Lab 2
     2-4-2015
 

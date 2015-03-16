@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+    <title>SNMP Monitor Tool</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/iplist.css') }}">
+</head>
+<body>
+    <h1>
+        Enter an IP address to monitor
+    </h1>
+
+    <ol>
+        How to use this website:
+        <li> Add an IP address using the field below</li>
+        <li> Then select the address you would like to monitor
+            from the drop down menu below that
+        </li>
+    </ol>
+
+        <form action="/" method="post">
+            <fieldset>
+              <legend>Enter an IP address to add to the list</legend>
+                <label for"ipaddr">IP Address</label>
+                <input id="ipaddr" name="ipaddr" type="text" />
+                <input type='submit' value='Add to list' />
+            </fieldset>
+        </form>
+
+        <form action="monitor" method="get">
+            <fieldset>
+                <legend>Select one from the drop down to go to the monitored page</legend>
+                <select name='ipaddr-list'>
+                {% for ip in ips %}
+                    <option value={{ ips.index(ip) }}>{{ ip }}</option>
+                {% else %}
+                    <option value=100>Add ips to see more values</option>
+                {% endfor %}
+                </select>
+                <input type="submit" value="Monitor" />
+            </fieldset>
+        </form>
+</body>
+</html>

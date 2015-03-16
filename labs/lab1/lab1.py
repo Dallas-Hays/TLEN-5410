@@ -1,9 +1,9 @@
 """ Lab 1 : Router Configurations
-    By Dallas Hays and Piyush
+    By Dallas Hays
     1/22/15
 
     Note to grader:
-    Must have the following directories
+    Will make the following directories
         /home/netman/tmpconf
         /home/netman/routerconfigs
 
