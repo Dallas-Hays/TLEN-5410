@@ -1,0 +1,54 @@
+=========================== GNS SET-UP =================================
+
+snmp-server host 198.51.100.2 public
+  - Where 100.2 is the tap0 interface
+
+snmp-server enable traps
+  - Enables a ton of trap things in the running config
+
+Now can shut/noshut interfaces and it will send traps
+
+
+=========================== TERMINAL SET-UP ============================
+
+sudo apt-get install snmpd
+  - Need the snmp daemon process
+
+service snmpd status
+  - Not needed, just to see if it is working
+
+sudo vim /etc/snmp/snmptrapd.conf
+  - Add the following...
+
+  authCommunity log,execute,net public
+  # traphandle .1.3.6.2.4.3 python /home/netman/handle_config_trap.py
+  traphandle default python /home/netman/notes/lec8.py
+
+
+*** Make sure you kill the old one if it exists
+ps aux | grep snmptrapd
+sudo kill (thePID)
+
+sudo snmptrapd -c /etc/snmp/snmptrapd.conf
+
+
+
+=========================== PYTHON FILE ================================
+
+data = ''
+output_file = open('/tmp/traps.log', 'a')
+
+while(True):
+    try:
+         output_file.write(raw_input() + '\n')
+       # data += raw_input()
+    except EOFError:
+         break
+
+output_file.close()
+
+
+========================================================================
+
+Once everything is set up and working, use wireshark to see if traps
+are being received correctly
