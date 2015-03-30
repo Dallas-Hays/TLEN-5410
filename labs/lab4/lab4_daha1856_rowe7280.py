@@ -1,51 +1,118 @@
-"""
+""" Dallas Hays and Robert Werthman
+    Lab 4
+
+    Note to grader:
+    Check the email_alert() function to change the email address you want
+    the message to be sent to
+
+    References:
+    1.http://rosettacode.org/wiki/Send_an_email#Python
+    For how to send an email with python
+
+    2. Cisco SNMP Object navigator
+
+    3. http://www.cisco.com/c/en/us/support/docs/network-management/
+    remote-monitoring-rmon/17428-18.html
+    For setting up rmon on the router
+
+    4.
+
 """
 
 import lab1
+import smtplib
 
 def find_interface(data):
+    """
+    """
     new_data = data.split(' ')
     for i in new_data:
         if i.startswith('IF-MIB::ifDescr'):
-            return new_data[new_data.index(i)+1]
+            return new_data[new_data.index(i)+1].splitlines()[0]
 
 def find_trapaddress(data):
+    """
+    """
     new_data = data.split(' ')
     for i in new_data:
         if i.startswith('SNMP-COMMUNITY-MIB::snmpTrapAddress'):
             return new_data[new_data.index(i)+1].splitlines()[0]
-            #return new_data[new_data.index(i)+1]
 
+def email_alert(data, trap, other):
+    """
+    """
+
+    login = 'bobdallas.tlen5540'
+    password = 'netman2015'
+    from_addr = 'bobdallas.tlen5540@gmail.com'
+    header  = 'From: %s\n' % from_addr
+    header += 'To: %s\n' % from_addr
+    message = ''
+
+    if trap == 'linkUp':
+        subject = 'TLEN5410 linkUp Notification'
+        message = 'The interface %s has come up.\n' % other
+        message += 'Full trap: %s ' % data
+
+    if trap == 'linkDown':
+        subject = 'TLEN5410 linkDown Notification'
+        message = 'The interface %s has gone down.\n' % other
+        message += 'Full trap: %s ' % data
+
+    if trap == 'ConfigChange':
+        subject = 'TLEN5410 configuration change Notification'
+        message = other + '\n'
+        message += 'Full trap: %s ' % data
+
+    if trap == 'UpperThreshold':
+        subject = 'TLEN5410 upper bandwidth threshold Notification'
+        message = 'The device has surpassed the 5000 byte threshold\n'
+        message += 'Full trap: %s ' % data
+
+    header += 'Subject: %s\n\n' % subject
+    message = header + message
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(from_addr,password)
+    problems = server.sendmail(from_addr, from_addr, message)
+    server.quit()
+    return problems
 
 def which_trap(data):
+    """
+    """
 
     if 'linkUp' in data:
         print 'linkUp'
         print find_interface(data)
+        print email_alert(data, 'linkUp', find_interface(data))
+
 
     if 'linkDown' in data:
         print 'linkDown'
         print find_interface(data)
+        print email_alert(data, 'linkDown', find_interface(data))
 
     if 'enterprises.9.9.43.2.0.1' in data:
-        config_change(data)
+        print 'Configuration change'
+        print find_trapaddress(data)
+        other = config_change(data)
+        print email_alert(data, 'ConfigChange', other)
 
     if 'mib-2.16.0.1' in data:
         print 'bandwidth'
-        print find_trapaddress(data)
+        # TODO: email
 
 def config_change(data):
     """
-
     """
-    print find_trapaddress(data)
-
     connection = []
     connection.append(find_trapaddress(data))
 
     lab1.getConfigurations(connection)
     lab1.isNew(connection)
-
+    return lab1.printInformation(connection)
 
 def main():
     data1 = """
@@ -102,29 +169,33 @@ def main():
 
 
 
-    which_trap(data1)
-    which_trap(data2)
+#    which_trap(data1)
+#    which_trap(data2)
     which_trap(data3)
-    which_trap(data4)
+#    which_trap(data4)
+
 
     """
 def main():
     """
 
-
+    """
     data = ''
     output_file = open('/tmp/trap.log', 'a')
 
     while(True):
         try:
             data = raw_input()
-        #    which_trap(data)
+        #   which_trap(data)
         #   function call to handle trap
             output_file.write(data + '\n')
         # data += raw_input()
         except EOFError:
             break
+
+    which_trap(data)
     output_file.close()
+    """
 
 if __name__ == '__main__':
     main()
