@@ -47,7 +47,7 @@ def TopPorts(flow_log):
         ports.append(mark_tools.port_service_lookup(a))
         octets.append(b)
 
-    figure(1, figsize=(7,7))
+    figure(1, figsize=(6,6))
     ax = axes()
     colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
     labels = ports # list of ports
@@ -92,7 +92,7 @@ def TopDestinations(flow_log):
         dst_addresses.append(mark_tools.reverse_dns(a))
         octets.append(b)
 
-    figure(2, figsize=(7,7))
+    figure(2, figsize=(6,6))
     ax = axes()
     colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
     labels = dst_addresses # list of destination addresses
