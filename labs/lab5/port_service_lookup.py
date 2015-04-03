@@ -1,4 +1,3 @@
-
 import socket
 #mydstport = 80
 mydstport = int(raw_input("Port Service Lookup --- Enter port number: "))
