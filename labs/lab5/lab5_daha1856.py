@@ -92,15 +92,15 @@ def TopDestinations(flow_log):
         dst_addresses.append(mark_tools.reverse_dns(a))
         octets.append(b)
 
-    figure(2, figsize=(6,6))
+    figure(2, figsize=(9,9))
     ax = axes()
     colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
     labels = dst_addresses # list of destination addresses
     values = octets # list of octets
     #fig.suptitle('test title', fontsize=20)
     pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
-
     ax.set_title("Top 10 Destination Addresses")
+    #plt.show()
     savefig('pie2.png')
 
 
