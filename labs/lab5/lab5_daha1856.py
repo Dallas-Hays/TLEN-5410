@@ -52,8 +52,56 @@ def TopPorts(flow_log):
     colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
     labels = ports # list of ports
     values = octets # list of octets
-    pie (values, labels=labels, colors=colors, autopct='%1.0f%%')
+    #fig.suptitle('test title', fontsize=20)
+    pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
+
+    ax.set_title("Top 10 Destination Ports")
     savefig('pie1.png')
+
+def TopDestinations(flow_log):
+    """ Top dstports
+    """
+
+    log = flowd.FlowLog(flow_log)
+    counter = dict()
+
+    #i = 0
+    for flow in log:
+        if not flow.dst_addr.startswith('192.168.1'):
+            #print flow.dst_addr, flow.src_port, flow.dst_port, mark_tools.port_service_lookup(flow.dst_port)
+
+            try:
+                counter[flow.dst_addr] += flow.octets
+            except KeyError:
+                counter[flow.dst_addr] = flow.octets
+
+
+            #i += 1
+            #if i >= 100:
+            #    break
+
+    # counter_sorted is a list of tuples EX: counter_sorted[0][1]
+    counter_sorted = sorted(counter.items(),key=lambda x:x[1], reverse=True)[1:11]
+    print counter_sorted
+
+    dst_addresses = list()
+    octets = list()
+
+    for i, (a,b) in enumerate(counter_sorted):
+        print a, b
+        dst_addresses.append(mark_tools.reverse_dns(a))
+        octets.append(b)
+
+    figure(2, figsize=(7,7))
+    ax = axes()
+    colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
+    labels = dst_addresses # list of destination addresses
+    values = octets # list of octets
+    #fig.suptitle('test title', fontsize=20)
+    pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
+
+    ax.set_title("Top 10 Destination Addresses")
+    savefig('pie2.png')
 
 
 def chooseFile():
@@ -72,6 +120,8 @@ def main():
     input = "flowd_capture_1"
     print input
     TopPorts(input)
+    TopDestinations(input)
+
 
 
 
