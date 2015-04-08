@@ -14,10 +14,6 @@
     -to-put-the-labels-in-a-legend-box
     How to make a cool legend
 
-    To obtain certain graphs we modified the functions depending on the
-    situation. Most were small changes to existing functions that we felt
-    did not require an entirely different function that would make the
-    code unnecessarily longer.
 """
 
 import os
@@ -80,7 +76,7 @@ def TopPorts(flow_log):
 def TopSourcePorts(flow_log):
     """ Function will analyze a NetFlow file and find the top source ports
         by bytes whos destination is to the address 10.1.1.156. It uses
-        puploy tools to accomplish this. It will also look up the ports
+        pyplot tools to accomplish this. It will also look up the ports
         using the port lookup tool given by Mark to try and determine the
         port alias.
     """
