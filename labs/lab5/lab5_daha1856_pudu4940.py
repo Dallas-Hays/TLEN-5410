@@ -13,6 +13,11 @@
     4. http://stackoverflow.com/questions/19570524/pie-chart-python-how
     -to-put-the-labels-in-a-legend-box
     How to make a cool legend
+
+    To obtain certain graphs we modified the functions depending on the
+    situation. Most were small changes to existing functions that we felt
+    did not require an entirely different function that would make the
+    code unnecessarily longer.
 """
 
 import os
