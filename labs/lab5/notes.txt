@@ -1,0 +1,8 @@
+on router - turn netflow on
+
+int fa0/0
+ip route-cache flow
+exit
+ip flow-export destination 198.51.100.2 9996
+ip flow-export version 5 (possibly 4)
+
