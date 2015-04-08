@@ -10,6 +10,9 @@
     3. http://stackoverflow.com/questions/1995615/how-can-i-format-a-
     decimal-to-always-show-2-decimal-places
     How to use the new "".format() to a certain amount of decimal places
+    4. http://stackoverflow.com/questions/19570524/pie-chart-python-how
+    -to-put-the-labels-in-a-legend-box
+    How to make a cool legend
 """
 
 import os
@@ -49,8 +52,8 @@ def TopPorts(flow_log):
         octets.append(b)
 
     # Pyplot set-up
-    figure(1, figsize=(6,6))
-    ax = axes()
+    plt.figure(1, figsize=(13,13))
+    #ax = axes()
     colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
     labels = ports # list of ports
     values = octets # list of octets
@@ -58,10 +61,21 @@ def TopPorts(flow_log):
     # Outputs to the command line a legend for the pie graph
     printTopTen(labels, values)
 
+    #
+    legend_list = generateLabels(labels, values)
+
     # Generate the pie chart and save it in the current directory
-    pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
-    ax.set_title("Top 10 Destination Ports")
-    savefig('TopPorts.png')
+    plt.pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
+    plt.axis('equal')
+    plt.legend(legend_list,loc=(-0.05,0.05),shadow=True)
+    plt.title("Top 10 Destination Ports")
+
+    #pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
+    #ax.set_title("Top 10 Destination Ports")
+    #handles, label = ax.get_legend_handles_labels()
+
+    #ax.legend(handles=values, labels=labels)
+    plt.savefig('TopPorts.png')
     print "Generated TopPorts.png..."
 
 def TopDestinations(flow_log):
@@ -95,19 +109,22 @@ def TopDestinations(flow_log):
         octets.append(b)
 
     # Pyplot set-up
-    figure(2, figsize=(6,6))
-    ax = axes()
-    colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
+    plt.figure(2, figsize=(13,13))
+    colors = ['r','g','b','c','m','y','w','burlywood','chartreuse','grey']
     labels = dst_addresses # list of destination addresses
     values = octets # list of octets
 
-    # Ouputs to the command line a legend for the pie graph
+    # Outputs to the command line a legend for the pie graph
     printTopTen(labels, values)
 
+    legend_list = generateLabels(labels, values)
+
     # Generate the pie chart and save it in the current directory
-    pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
-    ax.set_title("Top 10 Destination Addresses")
-    savefig('TopDestination.png')
+    plt.pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
+    plt.axis('equal')
+    plt.legend(legend_list,loc=(-0.05,0.05),shadow=True)
+    plt.title("Top 10 Destination Addresses")
+    plt.savefig('TopDestination.png')
     print "Generated TopDestination.png..."
 
 def printTopTen(labels, values):
@@ -129,6 +146,25 @@ def printTopTen(labels, values):
         pct = (values[i]/sum)*100
         print "{0}\t| {1:.1f}%\t| {2}".format(values[i], pct, labels[i])
 
+def generateLabels(labels, values):
+    """ Function will generate the Legend that will be placed on top of
+        the graph. It formats the text in a more presentable format
+        EX: 10.1.1.156 - 95.1% - 32661.23 Kilobytes
+    """
+    str_list = list()
+    sum = 0.0
+
+    for i in values:
+        sum += int(i)
+
+    for i in range(len(labels)):
+        pct = (values[i]/sum)*100
+        pct =  "{0:.1f}%".format(pct)
+        val = "{0:.2f} Kilobytes".format(float(values[i])/1024)
+        str_list.append(str(labels[i]) + ' - ' + pct + ' - ' + str(val))
+
+    return str_list
+
 
 def chooseFile():
     """ Function will simply ask the user for the NetFlow file to monitor
@@ -146,7 +182,7 @@ def chooseFile():
 
 def main():
     input = chooseFile()
-    #input = "flowd_capture_1" # For Debugging
+    #input = "flowd_capture_2" # For Debugging
     #print input
     TopPorts(input)
     TopDestinations(input)
