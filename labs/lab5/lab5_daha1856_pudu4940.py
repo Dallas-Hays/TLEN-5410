@@ -77,6 +77,57 @@ def TopPorts(flow_log):
     plt.savefig('TopPorts.png')
     print "Generated TopPorts.png..."
 
+def TopSourcePorts(flow_log):
+    """ Function will analyze a NetFlow file and find the top source ports
+        by bytes whos destination is to the address 10.1.1.156. It uses
+        puploy tools to accomplish this. It will also look up the ports
+        using the port lookup tool given by Mark to try and determine the
+        port alias.
+    """
+
+    log = flowd.FlowLog(flow_log)
+    counter = dict()
+
+    for flow in log:
+        # Ensure that the destination is not a local address
+        if not flow.dst_addr.startswith('192.168.1'):
+            if flow.dst_addr.startswith('10.1.1.156'):
+                try:
+                    counter[flow.src_port] += flow.octets
+                except KeyError:
+                    counter[flow.src_port] = flow.octets
+
+    # counter_sorted is a list of tuples EX: counter_sorted[0][1]
+    counter_sorted = sorted(counter.items(),key=lambda x:x[1], reverse=True)[:10]
+
+    ports = list() # top 10 port list
+    octets = list() # top 10 octets list
+
+    for i, (a,b) in enumerate(counter_sorted):
+        ports.append(mark_tools.port_service_lookup(a))
+        octets.append(b)
+
+    # Pyplot set-up
+    plt.figure(4, figsize=(13,13))
+    colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
+    labels = ports # list of ports
+    values = octets # list of octets
+
+    # Outputs to the command line a legend for the pie graph
+    printTopTen(labels, values)
+
+    # Legend list to be put on top of the graph
+    legend_list = generateLabels(labels, values)
+
+    # Generate the pie chart and save it in the current directory
+    plt.pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
+    plt.axis('equal')
+    plt.legend(legend_list,loc=(-0.05,0.05),shadow=True)
+    plt.title("Top 10 10.1.1.156 Connection Ports")
+
+    plt.savefig('TopSourcePorts.png')
+    print "Generated TopSourcePorts.png..."
+
 def TopDestinations(flow_log):
     """ Function will analyze a NetFlow file to figure out the top
         Destination Addresses that are being used. It will organize the data
@@ -127,6 +178,55 @@ def TopDestinations(flow_log):
 
     plt.savefig('TopDestination.png')
     print "Generated TopDestination.png..."
+
+def NextTopDestinations(flow_log):
+    """ Function will analyze a NetFlow file to figure out the top
+        Destination Addresses that are being used. This function differs
+        from the other TopDestinations() function in that it will ignore
+        the number 1 address '10.1.1.156' so that we can see the other
+        top addresses in full on another pie chart to help analyze further
+    """
+
+    log = flowd.FlowLog(flow_log)
+    counter = dict()
+
+    for flow in log:
+        if not flow.dst_addr.startswith('192.168.1'):
+            try:
+                counter[flow.dst_addr] += flow.octets
+            except KeyError:
+                counter[flow.dst_addr] = flow.octets
+
+    # counter_sorted is a list of tuples EX: counter_sorted[0][1]
+    counter_sorted = sorted(counter.items(),key=lambda x:x[1], reverse=True)[1:11]
+
+    dst_addresses = list() # top 10 address list
+    octets = list()        # top 10 octets list
+
+    for i, (a,b) in enumerate(counter_sorted):
+        dst_addresses.append(mark_tools.reverse_dns(a))
+        octets.append(b)
+
+    # Pyplot set-up
+    plt.figure(3, figsize=(13,13))
+    colors = ['r','g','b','c','m','y','w','burlywood','chartreuse','grey']
+    labels = dst_addresses # list of destination addresses
+    values = octets # list of octets
+
+    # Outputs to the command line a legend for the pie graph
+    printTopTen(labels, values)
+
+    # Legend list to be put on top of the graph
+    legend_list = generateLabels(labels, values)
+
+    # Generate the pie chart and save it in the current directory
+    plt.pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
+    plt.axis('equal')
+    plt.legend(legend_list,loc=(-0.05,0.05),shadow=True)
+    plt.title("Top 2-11 Destination Addresses")
+
+    plt.savefig('NextTopDestination.png')
+    print "Generated NextTopDestination.png..."
 
 def printTopTen(labels, values):
     """ Function is used to create a legend that will correspond with
@@ -183,10 +283,12 @@ def chooseFile():
 
 def main():
     input = chooseFile()
-    #input = "flowd_capture_2" # For Debugging
+    #input = "flowd_capture_1" # For Debugging
     #print input
     TopPorts(input)
     TopDestinations(input)
+    NextTopDestinations(input)
+    TopSourcePorts(input)
 
 if __name__ == "__main__":
     main()
