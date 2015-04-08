@@ -53,7 +53,6 @@ def TopPorts(flow_log):
 
     # Pyplot set-up
     plt.figure(1, figsize=(13,13))
-    #ax = axes()
     colors = ['b','g','r','c','m','y','w','burlywood','chartreuse','grey']
     labels = ports # list of ports
     values = octets # list of octets
@@ -61,7 +60,7 @@ def TopPorts(flow_log):
     # Outputs to the command line a legend for the pie graph
     printTopTen(labels, values)
 
-    #
+    # Legend list to be put on top of the graph
     legend_list = generateLabels(labels, values)
 
     # Generate the pie chart and save it in the current directory
@@ -70,11 +69,6 @@ def TopPorts(flow_log):
     plt.legend(legend_list,loc=(-0.05,0.05),shadow=True)
     plt.title("Top 10 Destination Ports")
 
-    #pie (values, labels=labels, colors=colors, autopct='%1.1f%%')
-    #ax.set_title("Top 10 Destination Ports")
-    #handles, label = ax.get_legend_handles_labels()
-
-    #ax.legend(handles=values, labels=labels)
     plt.savefig('TopPorts.png')
     print "Generated TopPorts.png..."
 
@@ -117,6 +111,7 @@ def TopDestinations(flow_log):
     # Outputs to the command line a legend for the pie graph
     printTopTen(labels, values)
 
+    # Legend list to be put on top of the graph
     legend_list = generateLabels(labels, values)
 
     # Generate the pie chart and save it in the current directory
@@ -124,6 +119,7 @@ def TopDestinations(flow_log):
     plt.axis('equal')
     plt.legend(legend_list,loc=(-0.05,0.05),shadow=True)
     plt.title("Top 10 Destination Addresses")
+
     plt.savefig('TopDestination.png')
     print "Generated TopDestination.png..."
 

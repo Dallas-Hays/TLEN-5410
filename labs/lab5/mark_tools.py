@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
+""" Code from Mark, used to find port names and address lookups
 """
 
 import socket
@@ -12,7 +12,6 @@ def reverse_dns(myip):
         return myname[0]
 
     except socket.herror, ex:
-        pass
         return myip
         #print myip, "doesn’t have a reverse record."
 
