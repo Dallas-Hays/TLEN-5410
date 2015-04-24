@@ -12,7 +12,7 @@
 import paramiko
 import xml.etree.ElementTree as etree
 import xml.parsers.expat
-from lab6_daha1856 import Lab6
+from lab6_connection import Lab6
 
 first_config = """<rpc-reply><configuration>
     <version>9.3R4.4</version>
@@ -93,17 +93,17 @@ def check_config(hostname, host):
 
     if var1 or var2[0] or var3 or var4[0] == 1:
         print 'NON-COMPLAINT'
-
-    if var1 == 1:
-        print "Removed User Bob Kool"
-    if var2[0] == 1:
-        print "Set the SNMP community string ", var2[1], "to be read-only"
-    if var3 == 1:
-        print "Disabled the HTTP Service"
-    if var4[0] == 1:
-        for interface in var4[1]:
-            print "Set the MTU for", interface, "to 1500"
-
+        if var1 == 1:
+            print "Removed User Bob Kool"
+        if var2[0] == 1:
+            print "Set the SNMP community string", var2[1], "to be read-only"
+        if var3 == 1:
+            print "Disabled the HTTP Service"
+        if var4[0] == 1:
+            for interface in var4[1]:
+                print "Set the MTU for", interface, "to 1500"
+    else:
+        print 'OKAY'
 
 
 def check_bob(host, del_user):
@@ -154,35 +154,26 @@ def check_mtu(host):
     """ Function will check for an MTU on all of the interfaces in the
         configuration. If there is no MTU it will add the xml element
         and if there is it will set the MTU to 1500
-
-        TODO:
-            -Right now it will say it changed the MTU to 1500 of all
-            interfaces even if only 1 was changed
     """
     try:
         tree = etree.fromstring(host.data)
-
-        temp_list = []
+        temp_list = [] # List for storing the interface that is changed
         var = 0
 
         for interfaces in tree.iter('interfaces'):
-            # Find the interface name
             for interface in interfaces.iter('interface'):
-                temp_list.append(interface[0].text)
+                for unit in interface.iter('unit'):
+                    # If there is no mtu tag, add it
+                    if unit.find('mtu') is None:
+                        unit.insert(1, etree.Element('mtu'))
 
-            # Check mtu
-            for unit in interfaces.iter('unit'):
-                # If there is no mtu tag, add it
-                if unit.find('mtu') is None:
-                    unit.insert(1, etree.Element('mtu'))
-
-                # Change the mtu value to 1500
-                for mtu in unit:
-                    if mtu.tag == 'mtu':
-                        if mtu.text != '1500':
-                            mtu.text = '1500'
-                            var = 1
-
+                    # Change the mtu value to 1500
+                    for mtu in unit:
+                        if mtu.tag == 'mtu':
+                            if mtu.text != '1500':
+                                mtu.text = '1500'
+                                temp_list.append(interface.find('name').text)
+                                var = 1
 
             host.data = etree.tostring(tree)
             return var, temp_list
@@ -247,8 +238,40 @@ def main():
 
     username = 'netman'
     password = 'netman'
-    hostname = '172.20.74.238'
 
+
+    for hostname in hostnames:
+        # Establish the first host
+        host1 = Lab6()
+
+        # Create the host connection
+        host1.establish_connection(hostname, username, password)
+
+        # Create the host channel
+        host1.establish_channel()
+
+        # Strip the data
+        host1.replace_data()
+
+        #print host1.data
+
+        # Send data
+        host1.channel.send(hello)
+        host1.channel.send(get_config_request)
+
+        # Receive the result
+        host1.replace_data()
+
+        #print "This is data"
+        #print host1.data
+        #print "End Data\n"
+
+        check_config(hostname, host1)
+
+        host1.client.close()
+
+
+    """
     # Establish the first host
     host1 = Lab6()
 
@@ -274,9 +297,10 @@ def main():
     print host1.data
     print "End Data\n"
 
-    check_config(hostname, host1)
+    check_config(hostnames[3], host1)
 
     host1.client.close()
+    """
 
 if __name__ == "__main__":
     main()
