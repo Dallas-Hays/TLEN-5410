@@ -15,6 +15,10 @@ import xml.parsers.expat
 from lab6_connection import Lab6
 
 def check_config(hostname, host):
+    """ Function will run all of the check functions and output the relevant
+        information to the terminal.
+    """
+
     print "Scanning the configuration for " + hostname + " ...",
 
     var1 = check_bob(host, 'bkool')
@@ -48,7 +52,8 @@ def check_config(hostname, host):
 def check_bob(host, del_user):
     """ Check if the user 'bkool' exists in the received xml file. if he
         does exist, remove him. Uses nested for loops to traverse the
-        various children of the xml document
+        various children of the xml document. Returns 1 if it found the
+        user and 0 if it did not
     """
     try:
         tree = etree.fromstring(host.data)
@@ -80,9 +85,9 @@ def check_http(host):
                         if services.tag == "web-management":
                             system.remove(services)
                             host.data = etree.tostring(tree)
-                            return 1
+                            return 1 # HTTP service was running
 
-        return 0
+        return 0 # There was no HTTP service running
 
     except xml.parsers.expat.ExpatError, ex:
         print ex
@@ -92,7 +97,9 @@ def check_http(host):
 def check_mtu(host):
     """ Function will check for an MTU on all of the interfaces in the
         configuration. If there is no MTU it will add the xml element
-        and if there is it will set the MTU to 1500
+        and if there is it will set the MTU to 1500. Returns 1 if an MTU
+        value was corrected and a 0 if there were no corrections. Also
+        returns a list of the interfaces that were corrected.
     """
     try:
         tree = etree.fromstring(host.data)
@@ -112,7 +119,7 @@ def check_mtu(host):
                             if mtu.text != '1500':
                                 mtu.text = '1500'
                                 temp_list.append(interface.find('name').text)
-                                var = 1
+                                var = 1 # An MTU was changed
 
             host.data = etree.tostring(tree)
             return var, temp_list
@@ -123,8 +130,10 @@ def check_mtu(host):
         print ex
 
 def check_readonly(host):
-    """ Function will check if the config is in 'read-write' for
-        authentication, if it is it will change it to 'read-only'
+    """ Function will check if the config is in read-write for
+        authentication, if it is it will change it to read-only. Returns
+        1 if it was converted to read-only and a 0 if it was already read-only.
+        Also returns the community string.
     """
     try:
         tree = etree.fromstring(host.data)
@@ -142,8 +151,9 @@ def check_readonly(host):
                     if community.text == 'read-write':
                         community.text = 'read-only'
                         host.data = etree.tostring(tree)
-                        return 1, community_string;
-        return 0, community_string
+                        return 1, community_string # Changed to read only
+
+        return 0, community_string # Already read-only
 
     except xml.parsers.expat.ExpatError, ex:
         print ex
@@ -201,12 +211,16 @@ def main():
         # Receive the result
         host1.replace_data()
 
-        #print "This is data"
-        #print host1.data
-        #print "End Data\n"
+        """ ### If I want to print the initial configuration ###
+        print "This is data"
+        print host1.data
+        print "End Data\n"
+        """
 
+        # Run all of the check functions on the pulled configuration
         check_config(hostname, host1)
 
+        # Close the connection
         host1.client.close()
 
 
