@@ -57,8 +57,9 @@ class Lab6(object):
             if data.find(']]>]]>') != -1:
                 data = data.replace(']]>]]>', '')
                 break
-        data += self.channel.recv(1024)
-        print data.strip
+
+            data += self.channel.recv(1024)
+        self.data = data.strip()
 
     def print_tree(self):
         try:
@@ -69,6 +70,31 @@ class Lab6(object):
 
 
 def main():
+    hello = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<hello>
+    <capabilities>
+        <capability>
+            urn:ietf:params:xml:ns:netconf:base:1.0
+    </capability>
+</capabilities>
+</hello>
+]]>]]>'''
+
+    get_config_request = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<rpc message-id="105" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<get-config>
+    <source>
+        <running/>
+    </source>
+</get-config>
+</rpc>
+]]>]]>
+'''
+
+    hostnames = ['172.20.74.238', '172.20.74.239', '172.20.74.240',
+                '172.20.74.241', '172.20.74.242']
 
     username = 'netman'
     password = 'netman'
@@ -84,62 +110,22 @@ def main():
     host1.establish_channel()
 
     # Strip the data
-    data = ""
-    while True:
-        if data.find(']]>]]>') != -1:
-            data = data.replace(']]>]]>', '')
-            break
+    host1.replace_data()
 
-        data += host1.channel.recv(1024)
-    print data.strip()
+    print host1.data
+
+    # Send data
+    host1.channel.send(hello)
+    host1.channel.send(get_config_request)
+
+    # Receive the result
+    host1.replace_data()
+
+    # End
+    print host1.data
 
     host1.client.close()
 
-    """
-    print 1
-    hostnames = ['172.20.74.238', '172.20.74.239', '172.20.74.240',
-                '172.20.74.241', '172.20.74.242']
-    username = 'netman'
-    password = 'netman'
-    hostname = '172.20.74.238'
-
-    print 2
-    host1 = Lab6(hostnames, username, password)
-    host1.establish_connection(hostnames[0], username, password)
-
-    print 3
-    #host1.establish_channel()
-
-    transport = host1.client.get_transport()
-    print transport
-    channel = transport.open_channel('session')
-    channel.invoke_subsystem('netconf')
-
-    data = ""
-    while True:
-        if data.find(']]>]]>') != -1:
-            data = data.replace(']]>]]>', '')
-            break
-    data += channel.recv(1024)
-    print data.strip
-
-    print 3.5
-
-    host1.replace_data()
-
-
-    print 4
-    host1.channel.send(host1.hello)
-    host1.channel.send(host1.get_config_request)
-
-    print 5
-    host1.replace_data()
-
-    print 6
-    #host1.print_tree()
-
-    host1.client.close()
-    """
 
 if __name__ == "__main__":
     main()
