@@ -73,7 +73,27 @@ first_config = """<rpc-reply><configuration>
 def check_config(hostname):
     print "Scanning the configuration for " + hostname + " ...",
 
-def
+def check_bob(data):
+    try:
+        tree = etree.fromstring(data)
+        print tree
+        #needle = tree.find('.//user')
+        #print needle
+
+
+        # TODO # Figure out how to remove bkool (parsing)
+        for user in tree.iter('user'):
+            print user.tag,
+            print dir(user)
+            user_tag = user.find('name')
+            for name in user_tag.iter('name'):
+                print name.tag, name.text
+                if name.text == "admin":
+                    print "There he be"
+                    print user.remove(name)
+
+    except xml.parsers.expat.ExpatError, ex:
+        print ex
 
 
 
@@ -110,13 +130,36 @@ def main():
 
     check_config(hostname)
 
-    """
+    # Establish the first host
     host1 = Lab6()
 
-    host1.establish_connection(hostname,username,password)
+    # Create the host connection
+    host1.establish_connection(hostname, username, password)
 
-    print host1.client
-    """
+    # Create the host channel
+    host1.establish_channel()
+
+    # Strip the data
+    host1.replace_data()
+
+    print host1.data
+
+    # Send data
+    host1.channel.send(hello)
+    host1.channel.send(get_config_request)
+
+    # Receive the result
+    host1.replace_data()
+
+    # End
+    host1.client.close()
+
+    print "This is data"
+    print host1.data
+    print "End Data"
+
+    check_bob(host1.data)
+
 
 
 if __name__ == "__main__":
