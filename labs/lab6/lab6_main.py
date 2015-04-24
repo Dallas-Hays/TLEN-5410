@@ -87,8 +87,7 @@ def check_bob(host):
     # host is object of class Lab6 from lab6_daha1856.py
     try:
         tree = etree.fromstring(host.data)
-        foos = tree.findall('.//user')
-
+        #foos = tree.findall('.//user')
         for rpcreply in tree.find('configuration'):
             for configuration in rpcreply:
                 for user in configuration.findall('user'):
@@ -109,6 +108,26 @@ def check_http(host):
 def check_mtu(host):
     # TODO
     pass
+
+def check_readonly(host):
+    """ TODO
+    """
+    try:
+        tree = etree.fromstring(host.data)
+        for rpcreply in tree.find('configuration'):
+            for snmp in rpcreply:
+                for community in snmp.findall('authorization'):
+                    # if read-write, change to read-only
+                    if community.text == 'read-write':
+                        community.text = 'read-only'
+                        host.data = etree.tostring(tree)
+                        return 1;
+            #    for community in snmp:
+            #        print community.find('authorization').text
+        return 0;
+
+    except xml.parsers.expat.ExpatError, ex:
+        print ex
 
 def main():
     hello = '''
@@ -147,7 +166,7 @@ def main():
     host1 = Lab6()
 
     # Create the host connection
-    host1.establish_connection(hostname, username, password)
+    host1.establish_connection(hostnames[2], username, password)
 
     # Create the host channel
     host1.establish_channel()
@@ -172,6 +191,8 @@ def main():
     print "End Data"
 
     print check_bob(host1)
+    print check_readonly(host1)
+
     print host1.data
 
 
