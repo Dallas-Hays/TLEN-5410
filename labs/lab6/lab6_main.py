@@ -75,23 +75,48 @@ first_config = """<rpc-reply><configuration>
 
 
 
-def check_config(hostname):
+def check_config(hostname, host):
     print "Scanning the configuration for " + hostname + " ...",
 
+    var1 = check_bob(host, 'bkool')
+    var2 = check_readonly(host)
+    var3 = check_http(host)
+    var4 = check_mtu(host)
 
-def check_bob(host):
+    #print host.data
+
+    #print var1, "bkool"
+    #print var2, "read-only"
+    #print var3, "web-man"
+    #print var4, "mtu"
+    #print var4[1][0], 'test'
+
+    if var1 or var2[0] or var3 or var4[0] == 1:
+        print 'NON-COMPLAINT'
+
+    if var1 == 1:
+        print "Removed User Bob Kool"
+    if var2[0] == 1:
+        print "Set the SNMP community string ", var2[1], "to be read-only"
+    if var3 == 1:
+        print "Disabled the HTTP Service"
+    if var4[0] == 1:
+        for interface in var4[1]:
+            print "Set the MTU for", interface, "to 1500"
+
+
+
+def check_bob(host, del_user):
     """ Check if the user 'bkool' exists in the received xml file. if he
         does exist, remove him. Uses nested for loops to traverse the
         various children of the xml document
     """
-    # host is object of class Lab6 from lab6_daha1856.py
     try:
         tree = etree.fromstring(host.data)
-        #foos = tree.findall('.//user')
         for rpcreply in tree.find('configuration'):
             for configuration in rpcreply:
                 for user in configuration.findall('user'):
-                    if user.find('name').text == 'admin': # user to remove
+                    if user.find('name').text == del_user: # user to remove
                         configuration.remove(user)
                         host.data = etree.tostring(tree)
                         return 1; # bkool was found
@@ -102,18 +127,84 @@ def check_bob(host):
         print ex
 
 def check_http(host):
-    # TODO
-    pass
-
-def check_mtu(host):
-    # TODO
-    pass
-
-def check_readonly(host):
-    """ TODO
+    """ Function will check if the config shows a running http server
+        running. If it does then it will remove the web-management from
+        the config.
     """
     try:
         tree = etree.fromstring(host.data)
+
+        for rpcreply in tree:
+            for configuration in rpcreply:
+                for system in configuration:
+                    for services in system:
+                        if services.tag == "web-management":
+                            system.remove(services)
+                            host.data = etree.tostring(tree)
+                            return 1
+
+        return 0
+
+    except xml.parsers.expat.ExpatError, ex:
+        print ex
+
+
+
+def check_mtu(host):
+    """ Function will check for an MTU on all of the interfaces in the
+        configuration. If there is no MTU it will add the xml element
+        and if there is it will set the MTU to 1500
+
+        TODO:
+            -Right now it will say it changed the MTU to 1500 of all
+            interfaces even if only 1 was changed
+    """
+    try:
+        tree = etree.fromstring(host.data)
+
+        temp_list = []
+        var = 0
+
+        for interfaces in tree.iter('interfaces'):
+            # Find the interface name
+            for interface in interfaces.iter('interface'):
+                temp_list.append(interface[0].text)
+
+            # Check mtu
+            for unit in interfaces.iter('unit'):
+                # If there is no mtu tag, add it
+                if unit.find('mtu') is None:
+                    unit.insert(1, etree.Element('mtu'))
+
+                # Change the mtu value to 1500
+                for mtu in unit:
+                    if mtu.tag == 'mtu':
+                        if mtu.text != '1500':
+                            mtu.text = '1500'
+                            var = 1
+
+
+            host.data = etree.tostring(tree)
+            return var, temp_list
+
+        return 0
+
+    except xml.parsers.expat.ExpatError, ex:
+        print ex
+
+def check_readonly(host):
+    """ Function will check if the config is in 'read-write' for
+        authentication, if it is it will change it to 'read-only'
+    """
+    try:
+        tree = etree.fromstring(host.data)
+
+        # Find the community string
+        for test in tree.iter('community'):
+            for name in test.iter('name'):
+                community_string = name.text
+
+        # Convert to read-only
         for rpcreply in tree.find('configuration'):
             for snmp in rpcreply:
                 for community in snmp.findall('authorization'):
@@ -121,10 +212,8 @@ def check_readonly(host):
                     if community.text == 'read-write':
                         community.text = 'read-only'
                         host.data = etree.tostring(tree)
-                        return 1;
-            #    for community in snmp:
-            #        print community.find('authorization').text
-        return 0;
+                        return 1, community_string;
+        return 0, community_string
 
     except xml.parsers.expat.ExpatError, ex:
         print ex
@@ -160,13 +249,11 @@ def main():
     password = 'netman'
     hostname = '172.20.74.238'
 
-    check_config(hostname)
-
     # Establish the first host
     host1 = Lab6()
 
     # Create the host connection
-    host1.establish_connection(hostnames[2], username, password)
+    host1.establish_connection(hostnames[3], username, password)
 
     # Create the host channel
     host1.establish_channel()
@@ -183,20 +270,13 @@ def main():
     # Receive the result
     host1.replace_data()
 
-    # End
-    host1.client.close()
-
     print "This is data"
     print host1.data
-    print "End Data"
+    print "End Data\n"
 
-    print check_bob(host1)
-    print check_readonly(host1)
+    check_config(hostname, host1)
 
-    print host1.data
-
-
-
+    host1.client.close()
 
 if __name__ == "__main__":
     main()
