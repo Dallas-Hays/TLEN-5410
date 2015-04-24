@@ -8,29 +8,9 @@ import paramiko
 import xml.etree.ElementTree as etree
 import xml.parsers.expat
 
-hello = '''<?xml version="1.0" encoding="UTF-8"?>
-<hello>
-    <capabilities>
-        <capability>
-            urn:ietf:params:xml:ns:netconf:base:1.0
-    </capability>
-</capabilities>
-</hello>
-]]>]]>'''
-
-get_config_request = '''
-<?xml version="1.0" encoding="UTF-8"?>
-<rpc message-id="105" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-<get-config>
-    <source>
-        <running/>
-    </source>
-</get-config>
-</rpc>
-]]>]]>
-'''
-
 class Lab6(object):
+
+    """
     def __init__(self, hostnames, username, password):
         self.hostnames = hostnames
         self.username = username
@@ -55,18 +35,20 @@ class Lab6(object):
         </rpc>
         ]]>]]>
         '''
+    """
 
     def establish_connection(self, hostname, username, password):
         # Establish the connection
         self.client = paramiko.SSHClient()
         self.client.load_system_host_keys()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.client.connect(hostname, 22, username, password, allow_agent=False, look_for_keys=False)
+        self.client.connect(hostname, 22, username, password,
+                            allow_agent=False, look_for_keys=False)
 
     def establish_channel(self):
         # ssh name@address -s netconf   These lines do the -s netconf part
-        self.transport = self.client.get_transport()
-        self.channel = self.transport.open_channel('session')
+        transport = self.client.get_transport()
+        self.channel = transport.open_channel('session')
         self.channel.invoke_subsystem('netconf')
 
     def replace_data(self):
@@ -75,13 +57,12 @@ class Lab6(object):
             if data.find(']]>]]>') != -1:
                 data = data.replace(']]>]]>', '')
                 break
-
         data += self.channel.recv(1024)
-        self.data = data.strip
+        print data.strip
 
-    def print_tree(self, data):
+    def print_tree(self):
         try:
-            tree = etree.fromstring(data)
+            tree = etree.fromstring(self.data)
             print tree
         except xml.parsers.expat.ExpatError, ex:
             print ex
@@ -89,52 +70,76 @@ class Lab6(object):
 
 def main():
 
+    username = 'netman'
+    password = 'netman'
+    hostname = '172.20.74.238'
+
+    # Establish the first host
+    host1 = Lab6()
+
+    # Create the host connection
+    host1.establish_connection(hostname, username, password)
+
+    # Create the host channel
+    host1.establish_channel()
+
+    # Strip the data
+    data = ""
+    while True:
+        if data.find(']]>]]>') != -1:
+            data = data.replace(']]>]]>', '')
+            break
+
+        data += host1.channel.recv(1024)
+    print data.strip()
+
+    host1.client.close()
+
+    """
     print 1
     hostnames = ['172.20.74.238', '172.20.74.239', '172.20.74.240',
                 '172.20.74.241', '172.20.74.242']
     username = 'netman'
     password = 'netman'
+    hostname = '172.20.74.238'
 
     print 2
     host1 = Lab6(hostnames, username, password)
     host1.establish_connection(hostnames[0], username, password)
 
     print 3
-    host1.establish_channel()
+    #host1.establish_channel()
 
-    print 4
+    transport = host1.client.get_transport()
+    print transport
+    channel = transport.open_channel('session')
+    channel.invoke_subsystem('netconf')
+
+    data = ""
+    while True:
+        if data.find(']]>]]>') != -1:
+            data = data.replace(']]>]]>', '')
+            break
+    data += channel.recv(1024)
+    print data.strip
+
+    print 3.5
+
     host1.replace_data()
 
-    print 5
-    host1.client.close()
-
-    """
-    print 2
-    # Establish the connection to the hostname
-    myclient = establish_connection(hostname, username, password)
-    mychannel = establish_channel(myclient)
-    mydata = replace_data(mychannel)
-    print mydata
-
-
-    print 3
-    # Send data
-    mychannel.send(hello)
-    mychannel.send(get_config_request)
 
     print 4
-    # Receive the data
-    mydata = replace_data(mychannel)
-    print mydata
+    host1.channel.send(host1.hello)
+    host1.channel.send(host1.get_config_request)
 
     print 5
-    # Print tree data
-    print_tree(mydata)
+    host1.replace_data()
 
     print 6
-    myclient.close()
-    """
+    #host1.print_tree()
 
+    host1.client.close()
+    """
 
 if __name__ == "__main__":
     main()

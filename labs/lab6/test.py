@@ -42,6 +42,7 @@ transport = client.get_transport()
 channel = transport.open_channel('session')
 channel.invoke_subsystem('netconf')
 
+
 data = ""
 while True:
     if data.find(']]>]]>') != -1:
