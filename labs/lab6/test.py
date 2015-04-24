@@ -24,7 +24,7 @@ get_config_request = '''
 ]]>]]>
 '''
 
-hostname = '172.20.74.204'
+hostname = '172.20.74.238'
 username = 'netman'
 password = 'netman'
 
