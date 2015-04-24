@@ -2,6 +2,11 @@
     Lab 6: Netconf
 
     References:
+    1. https://docs.python.org/2/library/xml.etree.elementtree.html
+        --Documentation on how to use element tree (removing nodes)
+    2. http://stackoverflow.com/questions/8186343/how-do-you-parse-
+    nested-xml-tags-with-python
+        --Helped me understand how to parse nested xml
 """
 
 import paramiko
@@ -73,29 +78,37 @@ first_config = """<rpc-reply><configuration>
 def check_config(hostname):
     print "Scanning the configuration for " + hostname + " ...",
 
-def check_bob(data):
+
+def check_bob(host):
+    """ Check if the user 'bkool' exists in the received xml file. if he
+        does exist, remove him. Uses nested for loops to traverse the
+        various children of the xml document
+    """
+    # host is object of class Lab6 from lab6_daha1856.py
     try:
-        tree = etree.fromstring(data)
-        print tree
-        #needle = tree.find('.//user')
-        #print needle
+        tree = etree.fromstring(host.data)
+        foos = tree.findall('.//user')
 
+        for rpcreply in tree.find('configuration'):
+            for configuration in rpcreply:
+                for user in configuration.findall('user'):
+                    if user.find('name').text == 'admin': # user to remove
+                        configuration.remove(user)
+                        host.data = etree.tostring(tree)
+                        return 1; # bkool was found
 
-        # TODO # Figure out how to remove bkool (parsing)
-        for user in tree.iter('user'):
-            print user.tag,
-            print dir(user)
-            user_tag = user.find('name')
-            for name in user_tag.iter('name'):
-                print name.tag, name.text
-                if name.text == "admin":
-                    print "There he be"
-                    print user.remove(name)
+        return 0; # bkool was not found
 
     except xml.parsers.expat.ExpatError, ex:
         print ex
 
+def check_http(host):
+    # TODO
+    pass
 
+def check_mtu(host):
+    # TODO
+    pass
 
 def main():
     hello = '''
@@ -158,7 +171,9 @@ def main():
     print host1.data
     print "End Data"
 
-    check_bob(host1.data)
+    print check_bob(host1)
+    print host1.data
+
 
 
 
