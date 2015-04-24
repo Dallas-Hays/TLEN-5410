@@ -110,8 +110,8 @@ def check_mtu(host):
             for interface in interfaces.iter('interface'):
                 for unit in interface.iter('unit'):
                     # If there is no mtu tag, add it
-                    if unit.find('mtu') is None:
-                        unit.insert(1, etree.Element('mtu'))
+                    #if unit.find('mtu') is None:
+                    #    unit.insert(1, etree.Element('mtu'))
 
                     # Change the mtu value to 1500
                     for mtu in unit:
