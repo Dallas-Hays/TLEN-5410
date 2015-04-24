@@ -70,14 +70,14 @@ class Lab6(object):
         self.channel.invoke_subsystem('netconf')
 
     def replace_data(self):
-        self.data = ""
+        data = ""
         while True:
-            if self.data.find(']]>]]>') != -1:
-                self.data = self.data.replace(']]>]]>', '')
+            if data.find(']]>]]>') != -1:
+                data = data.replace(']]>]]>', '')
                 break
 
-        self.data += self.channel.recv(1024)
-        self.data = self.data.strip
+        data += self.channel.recv(1024)
+        self.data = data.strip
 
     def print_tree(self, data):
         try:
