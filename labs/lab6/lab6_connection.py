@@ -2,6 +2,9 @@
     Lab 6: Netconf
 
     References:
+    1. https://mail.python.org/pipermail/python-list/2013-
+    September/667860.html
+        - Remove first and last lines of a multiline string (very cool)
 """
 
 import paramiko
@@ -93,12 +96,22 @@ def main():
 ]]>]]>
 '''
 
+    oureditconfig_template = '''
+<rpc>
+    <edit-config>
+        <target>
+            <running/>
+        </target>
+        <config>
+            <configuration>
+'''
+
     hostnames = ['172.20.74.238', '172.20.74.239', '172.20.74.240',
                 '172.20.74.241', '172.20.74.242']
 
     username = 'netman'
     password = 'netman'
-    hostname = '172.20.74.238'
+    hostname = '172.20.74.241'
 
     # Establish the first host
     host1 = Lab6()
@@ -112,7 +125,7 @@ def main():
     # Strip the data
     host1.replace_data()
 
-    print host1.data
+    #print host1.data
 
     # Send data
     host1.channel.send(hello)
@@ -121,8 +134,24 @@ def main():
     # Receive the result
     host1.replace_data()
 
-    # End
     print host1.data
+
+    # Test contains host1.data without the first and last line
+    test = ''.join(host1.data.splitlines(True)[1:-1])
+
+    my_edit_config_request = oureditconfig_template + test + '</configuration>\n</config>\n</edit-config>\n</rpc>\n]]>]]>\n'
+
+    print my_edit_config_request
+
+    print '1'
+    host1.channel.send(my_edit_config_request)
+
+    print '2'
+    host1.replace_data()
+
+    print '3'
+    print host1.data
+
 
     host1.client.close()
 

@@ -48,6 +48,8 @@ def check_config(hostname, host):
     else:
         print 'OKAY'
 
+    print "",
+
 
 def check_bob(host, del_user):
     """ Check if the user 'bkool' exists in the received xml file. if he
@@ -97,7 +99,7 @@ def check_http(host):
 def check_mtu(host):
     """ Function will check for an MTU on all of the interfaces in the
         configuration. If there is no MTU it will add the xml element
-        and if there is it will set the MTU to 1500. Returns 1 if an MTU
+        and if there is, it will set the MTU to 1500. Returns 1 if an MTU
         value was corrected and a 0 if there were no corrections. Also
         returns a list of the interfaces that were corrected.
     """
@@ -109,9 +111,16 @@ def check_mtu(host):
         for interfaces in tree.iter('interfaces'):
             for interface in interfaces.iter('interface'):
                 for unit in interface.iter('unit'):
+                    """
+                    Decided to get rid of the following, just adds an
+                    MTU if one does not exist, but then there is never
+                    a case that is OKAY instead of NON-COMPLAINT
+                    # ---------------------------------------
                     # If there is no mtu tag, add it
                     #if unit.find('mtu') is None:
                     #    unit.insert(1, etree.Element('mtu'))
+                    # ---------------------------------------
+                    """
 
                     # Change the mtu value to 1500
                     for mtu in unit:
@@ -182,6 +191,16 @@ def main():
 ]]>]]>
 '''
 
+    oureditconfig_template = '''
+<rpc>
+    <edit-config>
+        <target>
+            <running/>
+        </target>
+        <config>
+            <configuration>
+'''
+
     hostnames = ['172.20.74.238', '172.20.74.239', '172.20.74.240',
                 '172.20.74.241', '172.20.74.242']
 
@@ -211,14 +230,25 @@ def main():
         # Receive the result
         host1.replace_data()
 
-        """ ### If I want to print the initial configuration ###
-        print "This is data"
-        print host1.data
-        print "End Data\n"
-        """
-
         # Run all of the check functions on the pulled configuration
         check_config(hostname, host1)
+
+        # Check to make sure the data being sent back is good
+        #print host1.data
+
+        # Test contains host1.data without the first and last line
+        test = ''.join(host1.data.splitlines(True)[1:-1])
+
+        # This will be the corrected config
+        my_edit_config_request = oureditconfig_template + test + '</configuration>\n</config>\n</edit-config>\n</rpc>\n]]>]]>\n'
+
+        # Send the edited config file back to the server
+        host1.channel.send(my_edit_config_request)
+
+        # Receive the server response
+        host1.replace_data()
+
+        print "Server Response:", host1.data, "\n"
 
         # Close the connection
         host1.client.close()
