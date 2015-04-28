@@ -1,6 +1,7 @@
 """ Dallas Hays and Derrick Dsouza
     Lab 6: Netconf
 
+
     References:
     1. https://docs.python.org/2/library/xml.etree.elementtree.html
         --Documentation on how to use element tree (removing nodes)
@@ -26,14 +27,6 @@ def check_config(hostname, host):
     var3 = check_http(host)
     var4 = check_mtu(host)
 
-    #print host.data
-
-    # Various tests to see if variables were changed
-    #print var1, "bkool"
-    #print var2, "read-only"
-    #print var3, "web-man"
-    #print var4, "mtu"
-    #print var4[1][0], 'test'
 
     if var1 or var2[0] or var3 or var4[0] == 1:
         print 'NON-COMPLAINT'
