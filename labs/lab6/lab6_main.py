@@ -28,6 +28,7 @@ def check_config(hostname, host):
 
     #print host.data
 
+    # Various tests to see if variables were changed
     #print var1, "bkool"
     #print var2, "read-only"
     #print var3, "web-man"
@@ -48,6 +49,7 @@ def check_config(hostname, host):
     else:
         print 'OKAY'
 
+    # Print with a comma so that the server response will be included
     print "",
 
 
@@ -201,12 +203,12 @@ def main():
             <configuration>
 '''
 
+    # The IPs that we will check configs of
     hostnames = ['172.20.74.238', '172.20.74.239', '172.20.74.240',
                 '172.20.74.241', '172.20.74.242']
 
     username = 'netman'
     password = 'netman'
-
 
     for hostname in hostnames:
         # Establish the first host
@@ -221,13 +223,11 @@ def main():
         # Strip the data
         host1.replace_data()
 
-        #print host1.data
-
-        # Send data
+        # Send the hellow and ask for the client's config
         host1.channel.send(hello)
         host1.channel.send(get_config_request)
 
-        # Receive the result
+        # Receive the config and store in host1.data
         host1.replace_data()
 
         # Run all of the check functions on the pulled configuration
@@ -236,11 +236,12 @@ def main():
         # Check to make sure the data being sent back is good
         #print host1.data
 
-        # Test contains host1.data without the first and last line
-        test = ''.join(host1.data.splitlines(True)[1:-1])
+        # Remove the first and last lines of host1.data, strips the rpc-reply
+        stripped_data = ''.join(host1.data.splitlines(True)[1:-1])
 
-        # This will be the corrected config
-        my_edit_config_request = oureditconfig_template + test + '</configuration>\n</config>\n</edit-config>\n</rpc>\n]]>]]>\n'
+        # Add the closing xmls to the corrected config
+        my_edit_config_request = (oureditconfig_template + stripped_data +
+        '</configuration>\n</config>\n</edit-config>\n</rpc>\n]]>]]>\n')
 
         # Send the edited config file back to the server
         host1.channel.send(my_edit_config_request)
@@ -253,37 +254,6 @@ def main():
         # Close the connection
         host1.client.close()
 
-
-    """
-    # Establish the first host
-    host1 = Lab6()
-
-    # Create the host connection
-    host1.establish_connection(hostnames[3], username, password)
-
-    # Create the host channel
-    host1.establish_channel()
-
-    # Strip the data
-    host1.replace_data()
-
-    print host1.data
-
-    # Send data
-    host1.channel.send(hello)
-    host1.channel.send(get_config_request)
-
-    # Receive the result
-    host1.replace_data()
-
-    print "This is data"
-    print host1.data
-    print "End Data\n"
-
-    check_config(hostnames[3], host1)
-
-    host1.client.close()
-    """
 
 if __name__ == "__main__":
     main()

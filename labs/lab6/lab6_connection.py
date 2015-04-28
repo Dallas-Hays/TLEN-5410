@@ -4,7 +4,7 @@
     References:
     1. https://mail.python.org/pipermail/python-list/2013-
     September/667860.html
-        - Remove first and last lines of a multiline string (very cool)
+        -- Remove first and last lines of a multiline string (very cool)
 """
 
 import paramiko
@@ -12,36 +12,13 @@ import xml.etree.ElementTree as etree
 import xml.parsers.expat
 
 class Lab6(object):
-
-    """
-    def __init__(self, hostnames, username, password):
-        self.hostnames = hostnames
-        self.username = username
-        self.password = password
-        self.hello = '''<?xml version="1.0" encoding="UTF-8"?>
-        <hello>
-            <capabilities>
-                <capability>
-                    urn:ietf:params:xml:ns:netconf:base:1.0
-                </capability>
-            </capabilities>
-        </hello>
-        ]]>]]>'''
-        self.get_config_request = '''
-        <?xml version="1.0" encoding="UTF-8"?>
-        <rpc message-id="105" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-        <get-config>
-            <source>
-                <running/>
-            </source>
-        </get-config>
-        </rpc>
-        ]]>]]>
-        '''
+    """ This Class takes the python code we worked with in class and
+        puts them into functions to be called by the other python file
+        that will check the configs.
     """
 
     def establish_connection(self, hostname, username, password):
-        # Establish the connection
+        # Establish the connection to the server
         self.client = paramiko.SSHClient()
         self.client.load_system_host_keys()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -55,6 +32,7 @@ class Lab6(object):
         self.channel.invoke_subsystem('netconf')
 
     def replace_data(self):
+        # Replace the delimiter at the end of the file
         data = ""
         while True:
             if data.find(']]>]]>') != -1:
@@ -64,15 +42,11 @@ class Lab6(object):
             data += self.channel.recv(1024)
         self.data = data.strip()
 
-    def print_tree(self):
-        try:
-            tree = etree.fromstring(self.data)
-            print tree
-        except xml.parsers.expat.ExpatError, ex:
-            print ex
-
 
 def main():
+    """ DEBUG MAIN, USED TO TEST IF THE RPC SENDING AND RECEIVING IS WORKING
+    """
+
     hello = '''
 <?xml version="1.0" encoding="UTF-8"?>
 <hello>
@@ -139,7 +113,8 @@ def main():
     # Test contains host1.data without the first and last line
     test = ''.join(host1.data.splitlines(True)[1:-1])
 
-    my_edit_config_request = oureditconfig_template + test + '</configuration>\n</config>\n</edit-config>\n</rpc>\n]]>]]>\n'
+    my_edit_config_request = (oureditconfig_template + test +
+    '</configuration>\n</config>\n</edit-config>\n</rpc>\n]]>]]>\n')
 
     print my_edit_config_request
 
